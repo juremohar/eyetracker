@@ -1,4 +1,5 @@
 import sys
+import time
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -47,59 +48,6 @@ class UIMenu(QWidget):
         self.calibrateBtn = QPushButton('Start calibrate', self)
         self.calibrateBtn.move(640, 580)
 
-class UICalibrate(QWidget):
-    def __init__(self, parent=None):
-        super(UICalibrate, self).__init__(parent)
-
-        #
-        # self.dot = QtWidgets.QPushButton(self)
-        # self.dot.setGeometry(QtCore.QRect(100, 100, 28, 28))
-        #self.dot.move(300, 300)
-
-        # self.tracker.positionChanged.connect(self.dot.move)
-        #self.tracker.positionChanged.connect(self.testEmit)
-
-        # self.tracker.positionChanged.connect(self.move)
-        self.backBtn = QPushButton("Back", self)
-        self.backBtn.move(640, 480)
-
-        self.topLeft = UICalibrationCircle(self)
-        self.topLeft.move(30, 30)
-
-        self.topRight = UICalibrationCircle(self)
-        self.topRight.move(1220, 30)
-
-        self.bottomLeft = UICalibrationCircle(self)
-        self.bottomLeft.move(30, 800)
-
-        self.bottomRight = UICalibrationCircle(self)
-        self.bottomRight.move(1220, 800)
-
-        self.dot = QtWidgets.QPushButton(self)
-        self.dot.setGeometry(QtCore.QRect(100, 100, 28, 28))
-        self.dot.move(300, 300)
-
-        eyetrackers = tr.find_all_eyetrackers()
-        self.tracker = EyeTracker(eyetrackers[0])
-        print(self.tracker.positionChanged)
-        self.tracker.positionChanged.connect(self.move)
-        self.tracker.start()
-
-
-    def move(self):
-        print("move")
-        # print(self.tracker.x)
-        # print(self.tracker.y)
-        # left = (self.tracker.x[0] * 1280, self.tracker.x[1] * 860)
-        # right = (self.tracker.y[1] * 1280, self.tracker.y[1] * 860)
-
-        # test tracking
-        x = (self.tracker.x[0] + self.tracker.x[0])/2 * 1280
-        y = (self.tracker.y[1] + self.tracker.y[1])/2 * 860
-
-        self.dot.move(x, y)
-        self.update()
-
 
 class UICalibrationCircle(QWidget):
     def __init__(self, parent=None):
@@ -108,6 +56,40 @@ class UICalibrationCircle(QWidget):
         self.circle = QLabel(self)
         self.circle.resize(30, 30)
         self.circle.setStyleSheet("border: 3px solid blue; border-radius: 40px;")
+
+
+class UICalibrate(QWidget):
+    currentIndex = 0
+    points_to_calibrate = [(0.5, 0.5), (0.1, 0.1), (0.1, 0.9), (0.9, 0.1), (0.9, 0.9)]
+    currentPoint = None
+    def __init__(self, parent=None):
+        super(UICalibrate, self).__init__(parent)
+
+        self.currentPoint = UICalibrationCircle(self)
+        self.currentPoint.hide()
+
+        self.dot = QtWidgets.QPushButton(self)
+        self.dot.setGeometry(QtCore.QRect(100, 100, 28, 28))
+        self.dot.move(300, 300)
+
+        # eyetrackers = tr.find_all_eyetrackers()
+        # self.tracker = EyeTracker(eyetrackers[0])
+        # print(self.tracker.positionChanged)
+        # self.tracker.positionChanged.connect(self.move)
+        # self.tracker.start()
+
+
+    def moveCalibrationPoint(self):
+        if self.currentIndex >= len(self.points_to_calibrate):
+            self.timer.stop()
+            print("stop")
+            return
+
+        correctPoint = self.points_to_calibrate[self.currentIndex]
+        self.currentPoint.move(int(1280*correctPoint[0]), int(860*correctPoint[1]))
+        self.currentPoint.show()
+        self.currentIndex = int(self.currentIndex) + 1
+
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -126,9 +108,17 @@ class MainWindow(QMainWindow):
         self.Calibrate = UICalibrate(self)
         self.setWindowTitle("Calibrate")
         self.setCentralWidget(self.Calibrate)
-        self.Calibrate.backBtn.clicked.connect(self.startUIMenu)
+        # self.Calibrate.backBtn.clicked.connect(self.startUIMenu)
 
         self.show()
+
+        self.Calibrate.timer = QTimer()
+        self.Calibrate.timer.setInterval(1000)
+        self.Calibrate.timer.timeout.connect(self.Calibrate.moveCalibrationPoint)
+
+        self.Calibrate.timer.start()
+
+        # self.Calibrate.startCalibration()
 
 
 if __name__ == '__main__':
