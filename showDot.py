@@ -42,8 +42,6 @@ class Ui_MainWindow(object):
 
         self.timer.start()
 
-        self.startCalibration(MainWindow)
-
     def moveDot(self):
 
         coordinates = self.tracker.getAvgEyePos()
@@ -55,29 +53,6 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-
-    def startCalibration(self, MainWindow):
-        print("start cal")
-
-        points_to_calibrate = [(0.5, 0.5), (0.1, 0.1), (0.1, 0.9), (0.9, 0.1), (0.9, 0.9)]
-
-        # MainWindow.calibTimer = QTimer()
-        # MainWindow.calibTimer.setInterval(700)
-        # MainWindow.calibTimer.timeout.connect(self.showAndHideDot)
-        #
-        # self.calibTimer.start()
-        #
-        # Ui_MainWindow.showCalibrationDots(self)
-        # # for point in points_to_calibrate:
-        # #     MainWindow.calibPoint = UICalibrationCircle(MainWindow)
-        # #     MainWindow.calibPoint.move(int(1920*point[0]), int(1080*point[1]))
-        #
-        #     #time.sleep(0.7)
-        #
-        # self.calibTimer.stop()
-
-    # def showAndHideDot(self):
-    #     MainWindow
 
 class UICalibrationCircle(QWidget):
     def __init__(self, parent=None):
