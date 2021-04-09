@@ -8,6 +8,10 @@ from PyQt5.QtWidgets import *
 from EyeTracker import *
 
 
+widthScreen = 1920
+heightScreen = 1080
+
+
 class UIMenu(QWidget):
     def __init__(self, parent=None):
         super(UIMenu, self).__init__(parent)
@@ -38,8 +42,8 @@ class UIDotTracker(QWidget):
 
     def moveDot(self):
         coordinates = self.tracker.getAvgEyePos()
-        x = 1280 * coordinates[0]
-        y = 860 * coordinates[1]
+        x = widthScreen * coordinates[0]
+        y = heightScreen * coordinates[1]
         self.dot.move(x, y)
 
 
@@ -54,7 +58,7 @@ class UICalibrationCircle(QWidget):
 
 class UICalibrate(QWidget):
     currentIndex = 0
-    points_to_calibrate = [(0.5, 0.5), (0.1, 0.1), (0.1, 0.9), (0.9, 0.1), (0.9, 0.9)]
+    points_to_calibrate = [(0.1, 0.1), (0.1, 0.5), (0.1, 0.9), (0.5, 0.1), (0.5, 0.5), (0.5, 0.9), (0.9, 0.1), (0.9, 0.5), (0.9, 0.9)]
     currentPoint = None
     calibration = None
     def __init__(self, parent=None):
@@ -101,7 +105,7 @@ class UICalibrate(QWidget):
             return
 
         correctPoint = self.points_to_calibrate[self.currentIndex]
-        self.currentPoint.move(int(1280*correctPoint[0]), int(860*correctPoint[1]))
+        self.currentPoint.move(int(widthScreen*correctPoint[0]), int(heightScreen*correctPoint[1]))
         self.currentPoint.show()
         self.currentIndex = int(self.currentIndex) + 1
 
@@ -109,7 +113,7 @@ class UICalibrate(QWidget):
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
-        self.setFixedSize(1280, 860)
+        self.setFixedSize(widthScreen, heightScreen)
         self.startUIMenu()
 
     def startUIMenu(self):
