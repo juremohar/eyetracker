@@ -6,6 +6,8 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
 
 from EyeTracker import *
+from Analysis import *
+import helpers
 
 
 widthScreen = 1920
@@ -31,11 +33,27 @@ class UIDotTracker(QWidget):
         # self.dot.setGeometry(QtCore.QRect(100, 100, 28, 28))
         self.dot.move(300, 300)
 
+
+        self.testWord = QLabel("Beseda")
+        self.testWord.setStyleSheet("font-size: 30px; border: 1px solid green")
+
+        self.testWord2 = QLabel("Trobenta")
+        self.testWord2.setStyleSheet("font-size: 30px; border: 1px solid green")
+
+        self.vbox = QVBoxLayout()
+        self.vbox.setAlignment(Qt.AlignCenter)
+        self.vbox.addWidget(self.testWord)
+        self.vbox.addWidget(self.testWord2)
+
+        self.setLayout(self.vbox)
+
         self.tracker = EyeTracker()
         self.tracker.start_tracking()
 
+        self.analysis = Analysis()
+
         self.timer = QTimer()
-        self.timer.setInterval(1000)
+        self.timer.setInterval(500)
         self.timer.timeout.connect(self.moveDot)
 
         self.timer.start()
@@ -44,8 +62,21 @@ class UIDotTracker(QWidget):
         coordinates = self.tracker.getAvgEyePos()
         x = widthScreen * coordinates[0]
         y = heightScreen * coordinates[1]
+
         self.dot.move(x, y)
 
+        wordCoordinates = helpers.calculateWordCoordinates(self.testWord.size().width(), self.testWord.size().height(), self.testWord.x(), self.testWord.y())
+
+        onWord = helpers.isGazeOnWord(wordCoordinates, x, y)
+        print(onWord)
+
+        self.analysis.addToCollection({
+            "x": x,
+            "y": y,
+            "hit": onWord
+        })
+
+        self.analysis.print()
 
 class UICalibrationCircle(QWidget):
     def __init__(self, parent=None):
@@ -108,7 +139,6 @@ class UICalibrate(QWidget):
         self.currentPoint.move(int(widthScreen*correctPoint[0]), int(heightScreen*correctPoint[1]))
         self.currentPoint.show()
         self.currentIndex = int(self.currentIndex) + 1
-
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
