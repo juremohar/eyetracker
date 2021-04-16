@@ -37,6 +37,12 @@ def calculateWordCoordinates(wordWidth, wordHeight, x, y):
 def isGazeOnWord(wordCoordinates, gazeX, gazeY):
     return (int(wordCoordinates["x1"]) <= int(gazeX) <= int(wordCoordinates["x2"])) and (int(wordCoordinates["y1"]) <= int(gazeY) <= int(wordCoordinates["y2"]))
 
+def gazeOnWord(sentenceMapping, gazeX, gazeY):
+    for tuple in sentenceMapping.keys():
+        if tuple[0] >= gazeX and gazeX <= tuple[1]:
+            return sentenceMapping[tuple]
+    return None
+
 
 
 

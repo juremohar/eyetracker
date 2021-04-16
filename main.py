@@ -7,6 +7,8 @@ from PyQt5.QtWidgets import *
 
 from EyeTracker import *
 from Analysis import *
+from TestSentence import *
+
 import helpers
 
 
@@ -34,16 +36,21 @@ class UIDotTracker(QWidget):
         self.dot.move(300, 300)
 
 
-        self.testWord = QLabel("Beseda")
-        self.testWord.setStyleSheet("font-size: 30px; border: 1px solid green")
+        # self.testWord = QLabel("Beseda")
+        # self.testWord.setStyleSheet("font-size: 30px; border: 1px solid green")
+        #
+        # self.testWord2 = QLabel("Trobenta")
+        # self.testWord2.setStyleSheet("font-size: 30px; border: 1px solid green")
 
-        self.testWord2 = QLabel("Trobenta")
-        self.testWord2.setStyleSheet("font-size: 30px; border: 1px solid green")
+        # self.testWord = QLabel("Dolg stavek, na katerem bom poizkušal zaznati skok")
+        # self.testWord.setStyleSheet("font-size: 50px; border: 1px solid green")
+
+        self.testSentence = UITestSentence(self)
 
         self.vbox = QVBoxLayout()
         self.vbox.setAlignment(Qt.AlignCenter)
-        self.vbox.addWidget(self.testWord)
-        self.vbox.addWidget(self.testWord2)
+        #self.vbox.addWidget(self.testWord)
+        self.vbox.addWidget(self.testSentence.testSentence)
 
         self.setLayout(self.vbox)
 
@@ -65,18 +72,21 @@ class UIDotTracker(QWidget):
 
         self.dot.move(x, y)
 
-        wordCoordinates = helpers.calculateWordCoordinates(self.testWord.size().width(), self.testWord.size().height(), self.testWord.x(), self.testWord.y())
+        # wordCoordinates = helpers.calculateWordCoordinates(self.testWord.size().width(), self.testWord.size().height(), self.testWord.x(), self.testWord.y())
+        #
+        # onWord = helpers.isGazeOnWord(wordCoordinates, x, y)
+        # print(onWord)
 
-        onWord = helpers.isGazeOnWord(wordCoordinates, x, y)
-        print(onWord)
+        word = helpers.gazeOnWord(self.testSentence.wordMapping, x, y)
+        self.analysis.addWordToWordOrder(word)
+        self.analysis.printWordOrder()
+        # self.analysis.addToCollection({
+        #     "x": x,
+        #     "y": y,
+        #     "hit": onWord
+        # })
 
-        self.analysis.addToCollection({
-            "x": x,
-            "y": y,
-            "hit": onWord
-        })
-
-        self.analysis.print()
+        # self.analysis.print()
 
 class UICalibrationCircle(QWidget):
     def __init__(self, parent=None):
