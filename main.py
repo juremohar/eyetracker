@@ -11,7 +11,6 @@ from TestSentence import *
 
 import helpers
 
-
 widthScreen = 1920
 heightScreen = 1080
 
@@ -19,37 +18,32 @@ heightScreen = 1080
 class UIMenu(QWidget):
     def __init__(self, parent=None):
         super(UIMenu, self).__init__(parent)
-        self.startBtn = QPushButton('Start', self)
-        self.startBtn.move(640, 480)
+
+        self.vbox = QVBoxLayout()
+        self.vbox.setAlignment(Qt.AlignCenter)
+
+        self.startBtn = QPushButton('Start First Level', self)
+        # self.startBtn.move(960, 540)
 
         self.calibrateBtn = QPushButton('Start calibrate', self)
-        self.calibrateBtn.move(640, 580)
+        # self.calibrateBtn.move(960, 580)
+        self.vbox.addWidget(self.startBtn)
+        self.vbox.addWidget(self.calibrateBtn)
+        self.setLayout(self.vbox)
 
-        print("done menu")
 
 class UIDotTracker(QWidget):
     def __init__(self, parent=None):
         super(UIDotTracker, self).__init__(parent)
 
         self.dot = UICalibrationCircle(self)
-        # self.dot.setGeometry(QtCore.QRect(100, 100, 28, 28))
         self.dot.move(300, 300)
-
-
-        # self.testWord = QLabel("Beseda")
-        # self.testWord.setStyleSheet("font-size: 30px; border: 1px solid green")
-        #
-        # self.testWord2 = QLabel("Trobenta")
-        # self.testWord2.setStyleSheet("font-size: 30px; border: 1px solid green")
-
-        # self.testWord = QLabel("Dolg stavek, na katerem bom poizkušal zaznati skok")
-        # self.testWord.setStyleSheet("font-size: 50px; border: 1px solid green")
 
         self.testSentence = UITestSentence(self)
 
         self.vbox = QVBoxLayout()
         self.vbox.setAlignment(Qt.AlignCenter)
-        #self.vbox.addWidget(self.testWord)
+        # self.vbox.addWidget(self.testWord)
         self.vbox.addWidget(self.testSentence.testSentence)
 
         self.setLayout(self.vbox)
@@ -60,7 +54,7 @@ class UIDotTracker(QWidget):
         self.analysis = Analysis()
 
         self.timer = QTimer()
-        self.timer.setInterval(500)
+        self.timer.setInterval(350)
         self.timer.timeout.connect(self.moveDot)
 
         self.timer.start()
@@ -72,21 +66,10 @@ class UIDotTracker(QWidget):
 
         self.dot.move(x, y)
 
-        # wordCoordinates = helpers.calculateWordCoordinates(self.testWord.size().width(), self.testWord.size().height(), self.testWord.x(), self.testWord.y())
-        #
-        # onWord = helpers.isGazeOnWord(wordCoordinates, x, y)
-        # print(onWord)
-
         word = helpers.gazeOnWord(self.testSentence.wordMapping, x, y)
         self.analysis.addWordToWordOrder(word)
         self.analysis.printWordOrder()
-        # self.analysis.addToCollection({
-        #     "x": x,
-        #     "y": y,
-        #     "hit": onWord
-        # })
 
-        # self.analysis.print()
 
 class UICalibrationCircle(QWidget):
     def __init__(self, parent=None):
@@ -99,9 +82,11 @@ class UICalibrationCircle(QWidget):
 
 class UICalibrate(QWidget):
     currentIndex = 0
-    points_to_calibrate = [(0.1, 0.1), (0.1, 0.5), (0.1, 0.9), (0.5, 0.1), (0.5, 0.5), (0.5, 0.9), (0.9, 0.1), (0.9, 0.5), (0.9, 0.9)]
+    points_to_calibrate = [(0.1, 0.1), (0.1, 0.5), (0.1, 0.9), (0.5, 0.1), (0.5, 0.5), (0.5, 0.9), (0.9, 0.1),
+                           (0.9, 0.5), (0.9, 0.9)]
     currentPoint = None
     calibration = None
+
     def __init__(self, parent=None):
         super(UICalibrate, self).__init__(parent)
 
@@ -113,7 +98,9 @@ class UICalibrate(QWidget):
 
         self.dot = QtWidgets.QPushButton(self)
         self.dot.setGeometry(QtCore.QRect(100, 100, 28, 28))
-        self.dot.move(300, 300)
+        self.dot.setStyleSheet("border: 3px solid blue; border-radius: 40px;")
+
+        # self.dot.move(300, 300)
 
         self.tracker = EyeTracker()
         self.tracker.start_tracking()
@@ -122,14 +109,6 @@ class UICalibrate(QWidget):
         self.calibration.enter_calibration_mode()
 
     def moveCalibrationPoint(self):
-
-        # if self.currentIndex > 0:
-        #     correctPoint = self.points_to_calibrate[self.currentIndex]
-        #     print(self.calibration.collect_data(correctPoint[0], correctPoint[1]))
-        #     if self.calibration.collect_data(correctPoint[0], correctPoint[1]) != tr.CALIBRATION_STATUS_SUCCESS:
-        #         print("ni ok calibration status")
-        #         self.calibration.collect_data(correctPoint[0], correctPoint[1])
-
         if self.currentIndex >= len(self.points_to_calibrate):
             self.timer.stop()
             print("stop")
@@ -139,21 +118,24 @@ class UICalibrate(QWidget):
 
             # calibration_result = self.calibration.compute_and_apply()
             print(calibration_result)
-            print("Compute and apply returned {0} and collected at {1} points.".format(calibration_result.status, len(calibration_result.calibration_points)))
+            print("Compute and apply returned {0} and collected at {1} points.".format(calibration_result.status, len(
+                calibration_result.calibration_points)))
 
             self.calibration.leave_calibration_mode()
             self.tracker.stop_tracking()
             return
 
         correctPoint = self.points_to_calibrate[self.currentIndex]
-        self.currentPoint.move(int(widthScreen*correctPoint[0]), int(heightScreen*correctPoint[1]))
+        self.currentPoint.move(int(widthScreen * correctPoint[0]), int(heightScreen * correctPoint[1]))
         self.currentPoint.show()
         self.currentIndex = int(self.currentIndex) + 1
+
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
-        self.setFixedSize(widthScreen, heightScreen)
+        # self.setFixedSize(widthScreen, heightScreen)
+        self.showMaximized()
         self.startUIMenu()
 
     def startUIMenu(self):
